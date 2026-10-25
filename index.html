@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Colorplease — Free Color Palette Generator</title>
+  <meta
+    name="description"
+    content="Generate color palettes with Colorplease. Get HEX, RGB and HSL values, copy any color in one click, save palettes and explore color harmonies. Free and browser-based."
+  >
+
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#f6a9c6">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Colorplease">
+  <meta property="og:locale" content="en_US">
+  <meta
+    property="og:title"
+    content="Colorplease — Free Color Palette Generator"
+  >
+  <meta
+    property="og:description"
+    content="Create a color palette in seconds. Choose a base and a harmony, copy HEX, RGB or HSL values, and save the ones you like. Everything stays in your browser."
+  >
+
+  <meta name="twitter:card" content="summary">
+  <meta
+    name="twitter:title"
+    content="Colorplease — Free Color Palette Generator"
+  >
+  <meta
+    name="twitter:description"
+    content="Create a color palette in seconds. Choose a base and a harmony, copy HEX, RGB or HSL values, and save the ones you like. Everything stays in your browser."
+  >
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f6a9c6'/%3E%3Ctext x='8' y='23.5' font-size='29' font-family='Arial' font-weight='bold'%3Ec%3C/text%3E%3C/svg%3E"
+  >
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #20211f;
+      --paper: #f6f5f0;
+      --pink: #f6a9c6;
+      --lime: #d9f47b;
+      --muted: #60615c;
+      --line: #d3d4cc;
+      --focus: #6944d1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+    button, input { font: inherit; }
+    button, label, input[type=range] { -webkit-tap-highlight-color: transparent; }
+    button { cursor: pointer; color: inherit; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 5px; }
+    label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 5px; }
+    svg { width: 19px; height: 19px; flex-shrink: 0; }
+
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+
+    /* Header */
+    .site-header .wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 29px;
+      padding-bottom: 29px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -1.3px;
+      color: inherit;
+      text-decoration: none;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      background: var(--pink);
+      border: 2px solid;
+      border-radius: 50%;
+      font-family: Georgia, serif;
+      font-style: italic;
+    }
+    .site-nav { display: flex; gap: 28px; }
+    .site-nav a {
+      font-size: 14px;
+      font-weight: 700;
+      color: inherit;
+      text-decoration: none;
+    }
+    .site-nav a:hover { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
+
+    /* Hero */
+    .hero {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      column-gap: 24px;
+      align-items: end;
+      padding: 56px 0 64px;
+    }
+    h1 {
+      grid-column: 1 / 9;
+      margin: 0;
+      font-size: clamp(46px, 9vw, 112px);
+      line-height: .94;
+      letter-spacing: -.055em;
+      font-weight: 800;
+    }
+    .hero-copy {
+      grid-column: 9 / 13;
+      margin: 0;
+      padding-bottom: 8px;
+      max-width: 30ch;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.5;
+    }
+
+    /* Sections */
+    .block {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      column-gap: 32px;
+      padding: 22px 0 84px;
+      border-top: 2px solid var(--ink);
+    }
+    .block-title { margin: 0 0 8px; font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
+    .block-note { margin: 0; max-width: 24ch; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .block-body { min-width: 0; }
+
+    /* Generator */
+    .tool {
+      margin-right: 7px;
+      background: #fff;
+      border: 2px solid var(--ink);
+      box-shadow: 7px 7px 0 var(--ink);
+    }
+    .swatches { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .swatch { min-width: 0; border-right: 2px solid var(--ink); }
+    .swatch:last-child { border-right: 0; }
+    .chip {
+      position: relative;
+      height: clamp(200px, 24vw, 300px);
+      background: var(--chip, #ddd);
+      transition: background-color .3s;
+      transform-origin: bottom;
+      animation: rise .7s cubic-bezier(.2, .7, .2, 1) both;
+      animation-delay: calc(var(--i) * 70ms);
+    }
+    @keyframes rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    .lock {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      background: transparent;
+      border: 2px solid currentColor;
+    }
+    .lock:hover { background: color-mix(in srgb, currentColor 16%, transparent); }
+    .lock[aria-pressed=true] { background: currentColor; }
+    .lock[aria-pressed=true] svg { color: var(--chip); }
+    .lock .shackle-open { display: block; }
+    .lock .shackle-closed { display: none; }
+    .lock[aria-pressed=true] .shackle-open { display: none; }
+    .lock[aria-pressed=true] .shackle-closed { display: block; }
+
+    .values { border-top: 2px solid var(--ink); }
+    .value {
+      display: block;
+      width: 100%;
+      padding: 11px 14px;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      border-top: 1.5px solid var(--line);
+    }
+    .value:first-child { border-top: 0; }
+    .value:hover { background: #f4f6ec; }
+    .value:focus-visible { outline-offset: -3px; }
+    .value.copied { background: var(--lime); }
+    .fmt { display: block; margin-bottom: 2px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .val {
+      display: block;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .value[data-format=hex] .val { font-size: 20px; letter-spacing: -.5px; }
+    .value.copied .val { font-size: 0; }
+    .value.copied .val::after { content: 'Copied'; font-size: 14px; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 24px;
+      border-top: 2px solid var(--ink);
+    }
+    .base label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 700; }
+    .base-inputs { display: flex; gap: 10px; }
+    #base-picker {
+      width: 51px;
+      height: 51px;
+      padding: 0;
+      background: none;
+      border: 2px solid var(--ink);
+      cursor: pointer;
+    }
+    #base-picker::-webkit-color-swatch-wrapper { padding: 0; }
+    #base-picker::-webkit-color-swatch { border: 0; }
+    #base-picker::-moz-color-swatch { border: 0; }
+    #base-hex {
+      width: 132px;
+      height: 51px;
+      padding: 0 14px;
+      background: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; }
+    .button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      min-height: 51px;
+      padding: 0 20px;
+      background: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-size: 15px;
+      font-weight: 700;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .button:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+    .button:active { transform: translate(3px, 3px); box-shadow: none; }
+    .primary { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 #9b6379; }
+
+    .harmonies { padding: 22px 24px 26px; border-top: 2px solid var(--ink); }
+    .harmonies-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 14px; }
+    .harmonies-title { margin: 0; font-size: 14px; font-weight: 700; }
+    .hint { margin: 0; color: var(--muted); font-size: 13px; }
+    .harmony-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .harmony {
+      position: relative;
+      display: grid;
+      gap: 6px;
+      padding: 14px;
+      border: 1.5px solid var(--line);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .harmony input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .harmony:hover { background: #faf9f5; }
+    .harmony:has(input:checked) { border: 2px solid var(--ink); padding: 13.5px; background: var(--pink); }
+    .harmony-name { font-size: 15px; font-weight: 700; }
+    .harmony-rule { margin-bottom: 4px; color: var(--muted); font-size: 13px; }
+    .harmony:has(input:checked) .harmony-rule { color: var(--ink); }
+    .harmony-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      height: 34px;
+      border: 1.5px solid var(--ink);
+    }
+
+    /* Saved palettes */
+    .saved-list { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+    .saved-item {
+      display: grid;
+      grid-template-columns: minmax(220px, 340px) minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1.5px solid var(--line);
+    }
+    .saved-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      height: 56px;
+      padding: 0;
+      background: none;
+      border: 2px solid var(--ink);
+    }
+    .saved-strip:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+    .saved-meta { display: grid; gap: 4px; min-width: 0; }
+    .saved-name { font-size: 15px; font-weight: 700; }
+    .saved-hex { color: var(--muted); font-family: 'Courier New', monospace; font-size: 12px; overflow-wrap: anywhere; }
+    .saved-actions { display: flex; gap: 10px; }
+    .mini {
+      padding: 9px 14px;
+      background: #fff;
+      border: 2px solid var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .mini:hover { background: var(--lime); }
+    .empty { margin: 0; padding: 18px 0; color: var(--muted); }
+
+    /* Features */
+    .features { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+    .feature { padding-top: 14px; border-top: 2px solid var(--ink); }
+    .feature h3 { margin: 0 0 8px; font-size: 19px; letter-spacing: -.5px; }
+    .feature p { margin: 0; max-width: 28ch; color: var(--muted); font-size: 15px; line-height: 1.55; }
+
+    /* Footer */
+    .site-footer { border-top: 2px solid var(--ink); }
+    .site-footer .wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-top: 22px;
+      padding-bottom: 40px;
+    }
+    .privacy { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+    .privacy svg { width: 14px; height: 14px; }
+    .footer-brand { font-size: 17px; font-weight: 800; letter-spacing: -.8px; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 10;
+      max-width: min(360px, calc(100% - 40px));
+      padding: 14px 18px;
+      background: var(--lime);
+      border: 2px solid var(--ink);
+      box-shadow: 5px 5px 0 var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity .15s, transform .15s;
+    }
+    .toast.show { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      .hero { display: block; padding: 40px 0 48px; }
+      .hero-copy { margin-top: 24px; padding-bottom: 0; }
+      .block { display: block; padding-bottom: 64px; }
+      .block-head { margin-bottom: 22px; }
+      .block-note { max-width: 46ch; }
+      .features { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 32px; }
+    }
+    @media (max-width: 760px) {
+      .wrap { padding: 0 22px; }
+      .site-header .wrap { padding-top: 22px; padding-bottom: 22px; }
+      .site-nav { display: none; }
+      .swatches { grid-template-columns: 1fr; }
+      .swatch { display: grid; grid-template-columns: 112px minmax(0, 1fr); border-right: 0; border-bottom: 2px solid var(--ink); }
+      .swatch:last-child { border-bottom: 0; }
+      .chip { height: auto; min-height: 112px; transform-origin: left; animation-name: slide; }
+      @keyframes slide { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+      .lock { left: 10px; bottom: 10px; width: 38px; height: 38px; }
+      .values { border-top: 0; border-left: 2px solid var(--ink); }
+      .value { display: flex; align-items: baseline; gap: 10px; padding: 8px 12px; }
+      .value[data-format=hex] .val { font-size: 18px; }
+      .fmt { width: 32px; margin: 0; }
+      .controls { padding: 20px; }
+      .actions { width: 100%; }
+      .actions .button { flex: 1 1 140px; }
+      .harmonies { padding: 20px 20px 22px; }
+      .hint { display: none; }
+      .harmony-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .saved-item { grid-template-columns: 1fr; gap: 12px; }
+      .toast { right: 20px; bottom: 20px; }
+    }
+    @media (max-width: 520px) {
+      .features { grid-template-columns: 1fr; }
+      .harmony-grid { grid-template-columns: 1fr; }
+      .site-footer .wrap { flex-direction: column; align-items: flex-start; }
+    }
+    @media (hover: none) { .hint { display: none; } }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">c</span>colorplease.</a>
+      <nav class="site-nav" aria-label="Sections">
+        <a href="#generator">Generator</a>
+        <a href="#saved">Saved palettes</a>
+        <a href="#features">Features</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="wrap">
+      <section class="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title">Five colors.<br>One palette.</h1>
+        <p class="hero-copy">Pick a base color. Choose a harmony. Make it yours.</p>
+      </section>
+    </div>
+
+    <div class="wrap">
+      <section class="block" id="generator" aria-labelledby="generator-title">
+        <div class="block-head">
+          <h2 class="block-title" id="generator-title">Generator</h2>
+          <p class="block-note">Lock the colors you want to keep, then generate again.</p>
+        </div>
+        <div class="block-body">
+          <div class="tool">
+            <div class="swatches" id="swatches" aria-label="Current palette"></div>
+
+            <div class="controls">
+              <div class="base">
+                <label for="base-hex">Base color</label>
+                <div class="base-inputs">
+                  <input type="color" id="base-picker" value="#e8607d" aria-label="Pick a base color">
+                  <input type="text" id="base-hex" maxlength="7" spellcheck="false" autocomplete="off" value="#E8607D">
+                </div>
+              </div>
+              <div class="actions">
+                <button type="button" class="button primary" id="generate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.3 7a8 8 0 0 1 13.1-1L20 9M4 15l1.6 3A8 8 0 0 0 18.7 17"/></svg>Generate new</button>
+                <button type="button" class="button" id="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Save palette</button>
+                <button type="button" class="button" id="copy-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>Copy all</button>
+              </div>
+            </div>
+
+            <div class="harmonies">
+              <div class="harmonies-head">
+                <h3 class="harmonies-title" id="harmony-title">Harmony</h3>
+                <p class="hint">Press the space bar to generate a new palette.</p>
+              </div>
+              <div class="harmony-grid" id="harmonies" role="radiogroup" aria-labelledby="harmony-title"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="wrap">
+      <section class="block" id="saved" aria-labelledby="saved-title">
+        <div class="block-head">
+          <h2 class="block-title" id="saved-title">Saved palettes</h2>
+          <p class="block-note">Stored in this browser. Nothing leaves your device.</p>
+        </div>
+        <div class="block-body">
+          <ul class="saved-list" id="saved-list"></ul>
+          <p class="empty" id="saved-empty">No palettes saved yet. Press Save palette to keep one here.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="wrap">
+      <section class="block" id="features" aria-labelledby="features-title">
+        <div class="block-head">
+          <h2 class="block-title" id="features-title">What you get</h2>
+        </div>
+        <div class="block-body">
+          <div class="features">
+            <div class="feature"><h3>HEX, RGB and HSL</h3><p>Every color shows all three values, ready to paste into CSS, Figma or code.</p></div>
+            <div class="feature"><h3>One-click copy</h3><p>Click any value to copy it, or copy the whole palette at once.</p></div>
+            <div class="feature"><h3>Palette saving</h3><p>Keep the palettes you like. They stay in your browser, no account needed.</p></div>
+            <div class="feature"><h3>Harmony suggestions</h3><p>Complementary, analogous, triadic and more, built from the base color you choose.</p></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Generated on your device. Saved palettes never leave your browser.</div>
+      <div class="footer-brand">colorplease.</div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+      const mod360 = n => ((n % 360) + 360) % 360;
+
+      /* ---------- Color maths ---------- */
+      function hslToRgb(h, s, l) {
+        h = mod360(h); s /= 100; l /= 100;
+        const k = n => (n + h / 30) % 12;
+        const a = s * Math.min(l, 1 - l);
+        const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+        return [f(0), f(8), f(4)].map(v => Math.round(v * 255));
+      }
+      function rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+        const l = (max + min) / 2;
+        let h = 0;
+        const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+        if (d !== 0) {
+          if (max === r) h = ((g - b) / d) % 6;
+          else if (max === g) h = (b - r) / d + 2;
+          else h = (r - g) / d + 4;
+          h = mod360(h * 60);
+        }
+        return { h, s: s * 100, l: l * 100 };
+      }
+      function parseHex(text) {
+        let value = String(text).trim().replace(/^#/, '');
+        if (/^[0-9a-f]{3}$/i.test(value)) value = value.split('').map(c => c + c).join('');
+        return /^[0-9a-f]{6}$/i.test(value) ? '#' + value.toUpperCase() : null;
+      }
+      function hexToHsl(hex) {
+        const n = parseInt(hex.slice(1), 16);
+        return rgbToHsl((n >> 16) & 255, (n >> 8) & 255, n & 255);
+      }
+      function luminance(r, g, b) {
+        const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+        return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+      }
+      function describe(color) {
+        const [r, g, b] = hslToRgb(color.h, color.s, color.l);
+        const hsl = rgbToHsl(r, g, b);
+        const h = Math.round(hsl.h) % 360, s = Math.round(hsl.s), l = Math.round(hsl.l);
+        const hex = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+        return {
+          hex,
+          rgb: `${r}, ${g}, ${b}`,
+          hsl: `${h}, ${s}%, ${l}%`,
+          copy: { hex, rgb: `rgb(${r}, ${g}, ${b})`, hsl: `hsl(${h}, ${s}%, ${l}%)` },
+          onLight: luminance(r, g, b) >= 0.209
+        };
+      }
+
+      /* ---------- Harmonies ---------- */
+      const shift = (base, dh, dl = 0) => ({ h: mod360(base.h + dh), s: base.s, l: clamp(base.l + dl, 10, 92) });
+      const neutral = base => ({ h: base.h, s: 14, l: 94 });
+      const HARMONIES = [
+        { id: 'complementary', name: 'Complementary', rule: 'The base and its opposite',
+          build: b => [shift(b, 0, -24), shift(b, 0), neutral(b), shift(b, 180), shift(b, 180, -24)] },
+        { id: 'analogous', name: 'Analogous', rule: 'Neighbors on the color wheel',
+          build: b => [shift(b, -60), shift(b, -30), shift(b, 0), shift(b, 30), shift(b, 60)] },
+        { id: 'monochromatic', name: 'Monochromatic', rule: 'One hue, five lightnesses',
+          build: b => [shift(b, 0, -32), shift(b, 0, -16), shift(b, 0), shift(b, 0, 16), shift(b, 0, 32)] },
+        { id: 'triadic', name: 'Triadic', rule: 'Three hues, evenly spaced',
+          build: b => [shift(b, 0, -24), shift(b, 0), shift(b, 120), shift(b, 240), neutral(b)] },
+        { id: 'split', name: 'Split-complementary', rule: 'The base and two near its opposite',
+          build: b => [shift(b, 0, -24), shift(b, 0), shift(b, 150), shift(b, 210), neutral(b)] },
+        { id: 'tetradic', name: 'Tetradic', rule: 'Four hues in a square',
+          build: b => [shift(b, 0), shift(b, 90), shift(b, 180), shift(b, 270), neutral(b)] }
+      ];
+      const harmonyById = id => HARMONIES.find(h => h.id === id);
+
+      /* ---------- State ---------- */
+      const COUNT = 5;
+      const state = {
+        base: { h: 345, s: 72, l: 62 },
+        harmony: 'analogous',
+        colors: [],
+        locked: Array(COUNT).fill(false)
+      };
+
+      function randomBase() {
+        return { h: Math.floor(Math.random() * 360), s: 55 + Math.random() * 30, l: 46 + Math.random() * 14 };
+      }
+      function recompute() {
+        const next = harmonyById(state.harmony).build(state.base);
+        state.colors = next.map((color, i) => (state.locked[i] && state.colors[i]) ? state.colors[i] : color);
+      }
+
+      /* ---------- DOM ---------- */
+      const swatchesEl = $('#swatches');
+      const harmoniesEl = $('#harmonies');
+      const basePicker = $('#base-picker');
+      const baseHex = $('#base-hex');
+      const toastEl = $('#toast');
+      const savedList = $('#saved-list');
+      const savedEmpty = $('#saved-empty');
+
+      const FORMATS = [['hex', 'HEX'], ['rgb', 'RGB'], ['hsl', 'HSL']];
+      const lockIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path class="shackle-closed" d="M8 10V7a4 4 0 0 1 8 0v3"/><path class="shackle-open" d="M8 10V7a4 4 0 0 1 7.6-1.7"/></svg>';
+
+      swatchesEl.innerHTML = Array.from({ length: COUNT }, (_, i) => `
+        <article class="swatch" style="--i:${i}">
+          <div class="chip"><button type="button" class="lock" data-i="${i}" aria-pressed="false" aria-label="Lock color ${i + 1}">${lockIcon}</button></div>
+          <div class="values">${FORMATS.map(([key, label]) => `
+            <button type="button" class="value" data-i="${i}" data-format="${key}"><span class="fmt">${label}</span><span class="val"></span></button>`).join('')}
+          </div>
+        </article>`).join('');
+
+      harmoniesEl.innerHTML = HARMONIES.map(h => `
+        <label class="harmony">
+          <input type="radio" name="harmony" value="${h.id}">
+          <span class="harmony-name">${h.name}</span>
+          <span class="harmony-rule">${h.rule}</span>
+          <span class="harmony-strip">${'<i></i>'.repeat(COUNT)}</span>
+        </label>`).join('');
+
+      const swatchEls = [...swatchesEl.querySelectorAll('.swatch')];
+      const harmonyEls = [...harmoniesEl.querySelectorAll('.harmony')];
+
+      function render() {
+        const described = state.colors.map(describe);
+        swatchEls.forEach((el, i) => {
+          const c = described[i];
+          const chip = $('.chip', el);
+          chip.style.setProperty('--chip', c.hex);
+          chip.style.color = c.onLight ? '#20211f' : '#ffffff';
+          const lock = $('.lock', el);
+          lock.setAttribute('aria-pressed', String(state.locked[i]));
+          lock.setAttribute('aria-label', `${state.locked[i] ? 'Unlock' : 'Lock'} color ${i + 1}`);
+          el.querySelectorAll('.value').forEach(btn => {
+            const key = btn.dataset.format;
+            $('.val', btn).textContent = key === 'hex' ? c.hex : c[key];
+            btn.setAttribute('aria-label', `Copy ${key.toUpperCase()} ${c.copy[key]}`);
+          });
+        });
+        harmonyEls.forEach((el, i) => {
+          const preview = HARMONIES[i].build(state.base).map(describe);
+          el.querySelectorAll('.harmony-strip i').forEach((cell, n) => { cell.style.background = preview[n].hex; });
+          $('input', el).checked = HARMONIES[i].id === state.harmony;
+        });
+      }
+
+      function syncBase(source) {
+        const hex = describe(state.base).hex;
+        basePicker.value = hex.toLowerCase();
+        if (source !== 'text') baseHex.value = hex;
+      }
+
+      /* ---------- Toast and copy ---------- */
+      let toastTimer;
+      function toast(message) {
+        toastEl.textContent = message;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+      }
+      async function writeClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch {
+          try {
+            const area = document.createElement('textarea');
+            area.value = text;
+            area.setAttribute('readonly', '');
+            area.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+            document.body.appendChild(area);
+            area.select();
+            const ok = document.execCommand('copy');
+            area.remove();
+            return ok;
+          } catch { return false; }
+        }
+      }
+      const flashTimers = new WeakMap();
+      async function copy(text, message, button) {
+        const ok = await writeClipboard(text);
+        if (!ok) { toast('Copy is unavailable here. Select the value and copy it manually.'); return; }
+        toast(message);
+        if (button) {
+          button.classList.add('copied');
+          clearTimeout(flashTimers.get(button));
+          flashTimers.set(button, setTimeout(() => button.classList.remove('copied'), 1400));
+        }
+      }
+      const paletteHexes = () => state.colors.map(c => describe(c).hex);
+
+      /* ---------- Saved palettes ---------- */
+      const STORE_KEY = 'colorplease.palettes';
+      const MAX_SAVED = 12;
+      let saved = [];
+      try {
+        const raw = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+        if (Array.isArray(raw)) {
+          saved = raw.filter(p => p && /^[a-z0-9]+$/.test(p.id) && Array.isArray(p.hexes) && p.hexes.length === COUNT
+            && p.hexes.every(h => /^#[0-9A-F]{6}$/.test(h)) && /^#[0-9A-F]{6}$/.test(p.base) && harmonyById(p.harmony)).slice(0, MAX_SAVED);
+        }
+      } catch { saved = []; }
+      function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(saved)); } catch {} }
+
+      function renderSaved() {
+        savedList.innerHTML = saved.map(p => `
+          <li class="saved-item" data-id="${p.id}">
+            <button type="button" class="saved-strip" data-action="load" aria-label="Load palette ${p.hexes.join(', ')}">${p.hexes.map(h => `<span style="background:${h}"></span>`).join('')}</button>
+            <div class="saved-meta"><span class="saved-name">${harmonyById(p.harmony).name}</span><span class="saved-hex">${p.hexes.join('  ')}</span></div>
+            <div class="saved-actions"><button type="button" class="mini" data-action="copy">Copy</button><button type="button" class="mini" data-action="remove">Remove</button></div>
+          </li>`).join('');
+        savedEmpty.hidden = saved.length > 0;
+        savedList.hidden = saved.length === 0;
+      }
+
+      /* ---------- Actions ---------- */
+      function generate() {
+        state.base = randomBase();
+        recompute();
+        syncBase();
+        render();
+      }
+      function setBase(hex, source) {
+        state.base = hexToHsl(hex);
+        recompute();
+        syncBase(source);
+        render();
+      }
+      function savePalette() {
+        const hexes = paletteHexes();
+        if (saved.some(p => p.hexes.join() === hexes.join())) { toast('This palette is already saved.'); return; }
+        saved.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), hexes, base: describe(state.base).hex, harmony: state.harmony });
+        saved = saved.slice(0, MAX_SAVED);
+        persist();
+        renderSaved();
+        toast('Palette saved.');
+      }
+      function loadPalette(p) {
+        state.locked.fill(false);
+        state.harmony = p.harmony;
+        state.base = hexToHsl(p.base);
+        state.colors = p.hexes.map(hexToHsl);
+        syncBase();
+        render();
+        toast('Palette loaded.');
+      }
+
+      /* ---------- Events ---------- */
+      swatchesEl.addEventListener('click', event => {
+        const lock = event.target.closest('.lock');
+        if (lock) {
+          const i = Number(lock.dataset.i);
+          state.locked[i] = !state.locked[i];
+          render();
+          return;
+        }
+        const value = event.target.closest('.value');
+        if (value) {
+          const c = describe(state.colors[Number(value.dataset.i)]);
+          const key = value.dataset.format;
+          copy(c.copy[key], `Copied ${c.copy[key]}`, value);
+        }
+      });
+      harmoniesEl.addEventListener('change', event => {
+        if (event.target.name !== 'harmony') return;
+        state.harmony = event.target.value;
+        recompute();
+        render();
+      });
+      basePicker.addEventListener('input', () => setBase(basePicker.value.toUpperCase()));
+      baseHex.addEventListener('input', () => {
+        const hex = /^#?[0-9a-f]{6}$/i.test(baseHex.value.trim()) ? parseHex(baseHex.value) : null;
+        if (hex) setBase(hex, 'text');
+      });
+      baseHex.addEventListener('change', () => {
+        const hex = parseHex(baseHex.value);
+        if (hex) setBase(hex);
+        else { toast('Enter a HEX color like #E8607D.'); syncBase(); }
+      });
+      $('#generate').addEventListener('click', generate);
+      $('#save').addEventListener('click', savePalette);
+      $('#copy-all').addEventListener('click', () => copy(paletteHexes().join(', '), 'Copied all five HEX values'));
+      savedList.addEventListener('click', event => {
+        const button = event.target.closest('[data-action]');
+        if (!button) return;
+        const item = button.closest('.saved-item');
+        const palette = saved.find(p => p.id === item.dataset.id);
+        if (!palette) return;
+        const action = button.dataset.action;
+        if (action === 'load') loadPalette(palette);
+        if (action === 'copy') copy(palette.hexes.join(', '), 'Copied all five HEX values');
+        if (action === 'remove') {
+          saved = saved.filter(p => p.id !== palette.id);
+          persist();
+          renderSaved();
+          toast('Palette removed.');
+        }
+      });
+      document.addEventListener('keydown', event => {
+        if (event.code !== 'Space' || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
+        event.preventDefault();
+        generate();
+      });
+
+      /* ---------- Start ---------- */
+      state.base = randomBase();
+      recompute();
+      syncBase();
+      render();
+      renderSaved();
+
+      if (document.modelContext?.registerTool) {
+        try {
+          Promise.resolve(document.modelContext.registerTool({
+            name: 'generate_palette',
+            description: 'Generate a new color palette using the visible harmony setting. Locked colors are kept.',
+            inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+            annotations: { readOnlyHint: false, untrustedContentHint: false },
+            execute(input) {
+              if (!input || typeof input !== 'object' || Object.keys(input).length) throw new Error('Expected an empty object.');
+              generate();
+              return { generated: true, harmony: state.harmony, colors: paletteHexes() };
+            }
+          })).catch(() => {});
+        } catch {}
+      }
+    })();
+  </script>
+</body>
+</html>
